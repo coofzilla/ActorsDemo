@@ -16,23 +16,24 @@ struct GroupChatView: View {
                 ConversationView(viewModel: groupChatVM)
                 Divider()
                 ChatTextfield(viewModel: groupChatVM)
-                .padding(10)
+                    .padding(10)
             }
             .navigationTitle("Actors Demo!")
             .navigationBarItems(
                 trailing: Button(
                     action: {
-                        groupChatVM.generateMessages()
+                        Task {
+                            await groupChatVM.generateMessages()
+                        }
                     }, label: {
                         Text("Load")
                     }
                 )
             )
         }
-        .onAppear {
-            groupChatVM.generateMessages()
+        .task {
+            await groupChatVM.generateMessages()
         }
-
     }
 }
 

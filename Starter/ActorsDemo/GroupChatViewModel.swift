@@ -32,8 +32,8 @@ class GroupChatViewModel: ObservableObject {
         text.isEmpty
     }
 
-    func history() -> [Message] {
-        store.messageHistory
+    func history() async -> [Message] {
+        await store.history()
     }
 
     func serviceId() -> UUID {
@@ -52,9 +52,9 @@ extension GroupChatViewModel {
 }
 
 extension GroupChatViewModel {
-    func generateMessages() {
+    func generateMessages() async {
         print("Invoking messages")
-        store.newMessage { [weak self] message in
+        await store.newMessage { [weak self] message in
             guard let self = self else { return }
             DispatchQueue.main.async {
                 self.addNewMessage(message)

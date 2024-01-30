@@ -7,20 +7,22 @@
 
 import Foundation
 
-class MessageStore {
+actor MessageStore {
     var messageHistory: [Message] = []
     let id = UUID()
 
-    private let queue = DispatchQueue(label: "com.practice.actors")
-
-    func newMessage(completion: @escaping (Message) -> Void) {
+    func newMessage(completion: @escaping (Message) async -> Void) async {
         NetworkMessager.shared.fetchMessage { [weak self] message in
             guard let self = self else { return }
-            queue.sync {
-                self.messageHistory.append(message)
-                completion(message)
+            Task {
+                await self.saveMessage(message)
+                await completion(message)
             }
         }
+    }
+
+    func saveMessage(_ message: Message) {
+        messageHistory.append(message)
     }
 
     func history() -> [Message] {
@@ -35,7 +37,11 @@ extension MessageStore: Equatable {
 }
 
 extension MessageStore: Hashable {
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(messageHistory)
+    nonisolated func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+
+    nonisolated var hashValue: Int {
+        return id.hashValue
     }
 }
