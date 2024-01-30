@@ -11,17 +11,18 @@ class MessageStore {
     var messageHistory: [Message] = []
     let id = UUID()
 
+    private let queue = DispatchQueue(label: "com.practice.actors")
+
     func newMessage(completion: @escaping (Message) -> Void) {
         NetworkMessager.shared.fetchMessage { [weak self] message in
             guard let self = self else { return }
             self.messageHistory.append(message)
             completion(message)
         }
-
     }
 
     func history() -> [Message] {
-        self.messageHistory
+        messageHistory
     }
 }
 
